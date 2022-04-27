@@ -125,14 +125,14 @@ private:
 		for (int k = 0; k < 6; k++)
 		{
 			{
-				int curr_viewid = start_viewid + k * 2;
+				int curr_viewid = start_viewid + k;
 				bgfx::Attachment gbufferAt[1];
 				gbufferAt[0].init(render_light->shadowmap_cw->textures[k]->m_texh);
 				FBO[curr_viewid] = bgfx::createFrameBuffer(1, gbufferAt, false);
 				bgfx::setViewFrameBuffer(curr_viewid, FBO[curr_viewid]);
 			}
 			{
-				int curr_viewid = start_viewid + k * 2 + 1;
+				int curr_viewid = start_viewid + 6 + k;
 				bgfx::Attachment gbufferAt[1];
 				gbufferAt[0].init(render_light->shadowmap_ccw->textures[k]->m_texh);
 				FBO[curr_viewid] = bgfx::createFrameBuffer(1, gbufferAt, false);
@@ -178,7 +178,7 @@ private:
 			bgfx::setUniform(pointlightinfo, lightinfo);
 			for (int k = 0; k < 6; k++)
 			{
-				int curr_viewid = start_viewid + k * 2;
+				int curr_viewid = start_viewid + k;
 
 				float viewmat[16];
 				float projmat[16];
@@ -202,7 +202,7 @@ private:
 			bgfx::setUniform(pointlightinfo, lightinfo);
 			for (int k = 0; k < 6; k++)
 			{
-				int curr_viewid = start_viewid + k * 2 + 1;
+				int curr_viewid = start_viewid + 6 + k;
 
 				float viewmat[16];
 				float projmat[16];
