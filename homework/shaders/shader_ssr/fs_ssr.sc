@@ -136,6 +136,14 @@ float ReadDepthMap_Min(vec3 scene_pos, int miplevel)
 	float y0 = (float(pixel_y) + 0.5) * base_size;
 	float y1 = (float(pixel_y) + 1.5) * base_size;
 
+	if(miplevel == 0)
+	{
+		x0 = scene_pos.x;
+		x1 = scene_pos.x;
+		y0 = scene_pos.y;
+		y1 = scene_pos.y;
+	}
+
 	float d00 = texture2DLod(s_texDepth, vec2(x0,y0), miplevel).x * 2.0 - 1.0;
 	float d01 = texture2DLod(s_texDepth, vec2(x0,y1), miplevel).x * 2.0 - 1.0;
 	float d10 = texture2DLod(s_texDepth, vec2(x1,y0), miplevel).x * 2.0 - 1.0;
