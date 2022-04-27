@@ -192,7 +192,6 @@ vec3 CastRay(vec3 start, vec3 end)
 			if(level < 0)
 			{
 				flag =1;
-				curr_pos = test_pos;
 				break;
 			}
 		}
