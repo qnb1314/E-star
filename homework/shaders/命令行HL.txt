@@ -6,6 +6,9 @@ cd C:\Users\86147\Desktop\E-star\homework\shaders
 .\shaderc.exe -f ./shader_pointshadow/vs_pointshadow.sc -o ../CopyFile/shaders/dx11/vs_pointshadow.bin -i ../../bgfx/src  --varyingdef ./shader_pointshadow/varying_pointshadow.def.sc --platform windows --type vertex -p vs_5_0
 .\shaderc.exe -f ./shader_pointshadow/fs_pointshadow.sc -o ../CopyFile/shaders/dx11/fs_pointshadow.bin -i ../../bgfx/src  --varyingdef ./shader_pointshadow/varying_pointshadow.def.sc --platform windows --type fragment -p ps_5_0
 
+.\shaderc.exe -f ./shader_depthblend/vs_depthblend.sc -o ../CopyFile/shaders/dx11/vs_depthblend.bin -i ../../bgfx/src  --varyingdef ./shader_depthblend/varying_depthblend.def.sc --platform windows --type vertex -p vs_5_0
+.\shaderc.exe -f ./shader_depthblend/fs_depthblend.sc -o ../CopyFile/shaders/dx11/fs_depthblend.bin -i ../../bgfx/src  --varyingdef ./shader_depthblend/varying_depthblend.def.sc --platform windows --type fragment -p ps_5_0
+
 .\shaderc.exe -f ./shader_pointlight/vs_pointlight.sc -o ../CopyFile/shaders/dx11/vs_pointlight.bin -i ../../bgfx/src  --varyingdef ./shader_pointlight/varying_pointlight.def.sc --platform windows --type vertex -p vs_5_0
 .\shaderc.exe -f ./shader_pointlight/fs_pointlight.sc -o ../CopyFile/shaders/dx11/fs_pointlight.bin -i ../../bgfx/src  --varyingdef ./shader_pointlight/varying_pointlight.def.sc --platform windows --type fragment -p ps_5_0
 
