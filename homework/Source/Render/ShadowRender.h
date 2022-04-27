@@ -14,25 +14,64 @@ class ShadowRender :public RenderBase
 {
 public:
 	ShaderRef PointShadowShaderref;
+	ShaderRef DepthBlendShaderref;
+	
 	bgfx::FrameBufferHandle FBO[256];
 	int fbo_num = 0;
+	bgfx::VertexBufferHandle m_vbh;
+	bgfx::IndexBufferHandle m_ibh;
+	bgfx::UniformHandle s_texDepth[2];
 
 	bgfx::UniformHandle pointlightinfo;
 
-	ShadowRender(bgfx::ViewId id) :RenderBase(id), PointShadowShaderref(new PointShadowShader) {}
+	ShadowRender(bgfx::ViewId id) :RenderBase(id)
+		, PointShadowShaderref(new PointShadowShader)
+		, DepthBlendShaderref(new DepthBlendShader)
+	{}
 	~ShadowRender() {}
 
 	virtual void InitRHI() override
 	{
 		PointShadowShaderref->InitRHI();
+		DepthBlendShaderref->InitRHI();
 
+		struct UVVertex
+		{
+			float u;
+			float v;
+		};
+		static const UVVertex buffer[] =
+		{
+			{ 0.0f,0.0f },
+			{ 1.0f,0.0f },
+			{ 1.0f,1.0f },
+			{ 0.0f,0.0f },
+			{ 1.0f,1.0f },
+			{ 0.0f,1.0f }
+		};
+		bgfx::VertexLayout layout;
+		layout
+			.begin()
+			.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
+			.end();
+		m_vbh = bgfx::createVertexBuffer(bgfx::makeRef(buffer, 6 * sizeof(UVVertex)), layout);
+		static const uint16_t Indices[] = { 0,1,2,3,4,5 };
+		m_ibh = bgfx::createIndexBuffer(bgfx::makeRef(Indices, 6 * sizeof(uint16_t)));
+
+		s_texDepth[0] = bgfx::createUniform("s_texDepthCW", bgfx::UniformType::Sampler);
+		s_texDepth[1] = bgfx::createUniform("s_texDepthCCW", bgfx::UniformType::Sampler);
 		pointlightinfo = bgfx::createUniform("lightinfo", bgfx::UniformType::Vec4);
 	}
 
 	virtual void ReleaseRHI() override
 	{
 		PointShadowShaderref->ReleaseRHI();
+		DepthBlendShaderref->ReleaseRHI();
 
+		bgfx::destroy(m_vbh);
+		bgfx::destroy(m_ibh);
+		bgfx::destroy(s_texDepth[0]);
+		bgfx::destroy(s_texDepth[1]);
 		bgfx::destroy(pointlightinfo);
 	}
 
@@ -80,17 +119,38 @@ private:
 
 		//分配viewid
 		int start_viewid = m_viewid + fbo_num;
-		fbo_num += 6;
+		fbo_num += 18;
 
 		//创建FBO
 		for (int k = 0; k < 6; k++)
 		{
-			int curr_viewid = start_viewid + k;
-			bgfx::Attachment gbufferAt[1];
-			gbufferAt[0].init(render_light->shadowmap->m_texh, bgfx::Access::Write, k);
-			FBO[curr_viewid] = bgfx::createFrameBuffer(1, gbufferAt, false);
-			bgfx::setViewFrameBuffer(curr_viewid, FBO[curr_viewid]);
+			{
+				int curr_viewid = start_viewid + k * 2;
+				bgfx::Attachment gbufferAt[1];
+				gbufferAt[0].init(render_light->shadowmap_cw->textures[k]->m_texh);
+				FBO[curr_viewid] = bgfx::createFrameBuffer(1, gbufferAt, false);
+				bgfx::setViewFrameBuffer(curr_viewid, FBO[curr_viewid]);
+			}
+			{
+				int curr_viewid = start_viewid + k * 2 + 1;
+				bgfx::Attachment gbufferAt[1];
+				gbufferAt[0].init(render_light->shadowmap_ccw->textures[k]->m_texh);
+				FBO[curr_viewid] = bgfx::createFrameBuffer(1, gbufferAt, false);
+				bgfx::setViewFrameBuffer(curr_viewid, FBO[curr_viewid]);
+			}
+			{
+				int curr_viewid = start_viewid + 12 + k;
+				bgfx::Attachment gbufferAt[1];
+				gbufferAt[0].init(render_light->shadowmap->m_texh, bgfx::Access::Write, k);
+				FBO[curr_viewid] = bgfx::createFrameBuffer(1, gbufferAt, false);
+				bgfx::setViewFrameBuffer(curr_viewid, FBO[curr_viewid]);
+			}
+		}
 
+		//刷新深度缓冲
+		for (int i = 0; i < 18; i++)
+		{
+			int curr_viewid = start_viewid + i;
 			bgfx::setViewClear(curr_viewid
 				, BGFX_CLEAR_DEPTH
 				, 0x000000ff
@@ -101,23 +161,48 @@ private:
 			bgfx::touch(curr_viewid);
 		}
 
+		//渲染深度-CW->CCW->blend
 		for (int j = 0; j < render_objects.size(); j++)
 		{
 			ObjectRef currobj = render_objects[j];
 			bgfx::setVertexBuffer(0, currobj->staticmeshref->renderdata.m_vbh[0]);
 			bgfx::setIndexBuffer(currobj->staticmeshref->renderdata.m_ibh[1]);
 
+			//CW
+			bgfx::setState(0
+				| BGFX_STATE_WRITE_Z
+				| BGFX_STATE_DEPTH_TEST_LEQUAL
+				| BGFX_STATE_CULL_CW
+			);
+			float lightinfo[4] = { LightPoint.x,LightPoint.y,LightPoint.z, render_light->far };
+			bgfx::setUniform(pointlightinfo, lightinfo);
+			for (int k = 0; k < 6; k++)
+			{
+				int curr_viewid = start_viewid + k * 2;
+
+				float viewmat[16];
+				float projmat[16];
+				GetMat4WithMatrix4f(ViewsOfPointLight[k].GetViewMatrix(), viewmat);
+				GetMat4WithMatrix4f(ViewsOfPointLight[k].GetProjectionMatrix(), projmat);
+				bgfx::setViewTransform(curr_viewid, viewmat, projmat);
+
+				float mtx[16];
+				GetMat4WithMatrix4f(currobj->Model, mtx);
+				bgfx::setTransform(mtx);
+
+				if (k == 5)bgfx::submit(curr_viewid, PointShadowShaderref->m_program, 0U, BGFX_DISCARD_TRANSFORM | BGFX_DISCARD_STATE);
+				else bgfx::submit(curr_viewid, PointShadowShaderref->m_program, 0U, BGFX_DISCARD_TRANSFORM);
+			}
+			//CCW
 			bgfx::setState(0
 				| BGFX_STATE_WRITE_Z
 				| BGFX_STATE_DEPTH_TEST_LEQUAL
 				| BGFX_STATE_CULL_CCW
 			);
-			float lightinfo[4] = { LightPoint.x,LightPoint.y,LightPoint.z, render_light->far };
 			bgfx::setUniform(pointlightinfo, lightinfo);
-
 			for (int k = 0; k < 6; k++)
 			{
-				int curr_viewid = start_viewid + k;
+				int curr_viewid = start_viewid + k * 2 + 1;
 
 				float viewmat[16];
 				float projmat[16];
@@ -132,6 +217,17 @@ private:
 				if (k == 5)bgfx::submit(curr_viewid, PointShadowShaderref->m_program);
 				else bgfx::submit(curr_viewid, PointShadowShaderref->m_program, 0U, BGFX_DISCARD_TRANSFORM);
 			}
+		}
+		//blend
+		for (int k = 0; k < 6; k++)
+		{
+			int curr_viewid = start_viewid + 12 + k;
+			bgfx::setTexture(0, s_texDepth[0], render_light->shadowmap_cw->textures[k]->m_texh);
+			bgfx::setTexture(1, s_texDepth[1], render_light->shadowmap_ccw->textures[k]->m_texh);
+			bgfx::setVertexBuffer(0, m_vbh);
+			bgfx::setIndexBuffer(m_ibh);
+			bgfx::setState(0 | BGFX_STATE_WRITE_Z);
+			bgfx::submit(curr_viewid, DepthBlendShaderref->m_program);
 		}
 	}
 

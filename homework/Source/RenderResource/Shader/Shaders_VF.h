@@ -7,6 +7,12 @@ public:
 	PointShadowShader() :ShaderVF("vs_pointshadow", "fs_pointshadow") {}
 };
 
+class DepthBlendShader :public ShaderVF
+{
+public:
+	DepthBlendShader() :ShaderVF("vs_depthblend", "fs_depthblend") {}
+};
+
 class DepthShader :public ShaderVF
 {
 public:
