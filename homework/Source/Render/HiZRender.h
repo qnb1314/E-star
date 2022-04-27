@@ -125,17 +125,18 @@ public:
 		bgfx::submit(m_viewid, HiZShaderref->m_program);
 		
 		
+		bgfx::setTexture(0, s_texDepth, HiZBuffer->m_texh);
+		bgfx::setVertexBuffer(0, m_vbh);
+		bgfx::setIndexBuffer(m_ibh);
 		for (int i = 1; i <= HiZ_Level; i++)
 		{
-			bgfx::setTexture(0, s_texDepth, HiZBuffer->m_texh);
 			float mapinfo[4] = { i,1.0f / (size / pow(2,i - 1)),0.0f,0.0f };
 			bgfx::setUniform(u_mapinfo, mapinfo);
-			bgfx::setVertexBuffer(0, m_vbh);
-			bgfx::setIndexBuffer(m_ibh);
 			bgfx::setState(0
 				| BGFX_STATE_WRITE_Z
 			);
-			bgfx::submit(m_viewid + i, HiZShaderref->m_program);
+			if (i == HiZ_Level)bgfx::submit(m_viewid + i, HiZShaderref->m_program);
+			else bgfx::submit(m_viewid + i, HiZShaderref->m_program, 0U, BGFX_DISCARD_STATE);
 		}
 	}
 };
