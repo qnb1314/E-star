@@ -1,0 +1,34 @@
+cd C:\Users\86147\Desktop\E-star\homework\shaders
+
+.\shaderc.exe -f ./shader_post/vs_post.sc -o ../CopyFile/shaders/dx11/vs_post.bin -i ../../bgfx/src  --varyingdef ./shader_post/varying_post.def.sc --platform windows --type vertex -p vs_5_0
+.\shaderc.exe -f ./shader_post/fs_post.sc -o ../CopyFile/shaders/dx11/fs_post.bin -i ../../bgfx/src  --varyingdef ./shader_post/varying_post.def.sc --platform windows --type fragment -p ps_5_0
+
+.\shaderc.exe -f ./shader_pointshadow/vs_pointshadow.sc -o ../CopyFile/shaders/dx11/vs_pointshadow.bin -i ../../bgfx/src  --varyingdef ./shader_pointshadow/varying_pointshadow.def.sc --platform windows --type vertex -p vs_5_0
+.\shaderc.exe -f ./shader_pointshadow/fs_pointshadow.sc -o ../CopyFile/shaders/dx11/fs_pointshadow.bin -i ../../bgfx/src  --varyingdef ./shader_pointshadow/varying_pointshadow.def.sc --platform windows --type fragment -p ps_5_0
+
+.\shaderc.exe -f ./shader_pointlight/vs_pointlight.sc -o ../CopyFile/shaders/dx11/vs_pointlight.bin -i ../../bgfx/src  --varyingdef ./shader_pointlight/varying_pointlight.def.sc --platform windows --type vertex -p vs_5_0
+.\shaderc.exe -f ./shader_pointlight/fs_pointlight.sc -o ../CopyFile/shaders/dx11/fs_pointlight.bin -i ../../bgfx/src  --varyingdef ./shader_pointlight/varying_pointlight.def.sc --platform windows --type fragment -p ps_5_0
+
+.\shaderc.exe -f ./shader_ibl/vs_ibl.sc -o ../CopyFile/shaders/dx11/vs_ibl.bin -i ../../bgfx/src  --varyingdef ./shader_ibl/varying_ibl.def.sc --platform windows --type vertex -p vs_5_0
+.\shaderc.exe -f ./shader_ibl/fs_ibl.sc -o ../CopyFile/shaders/dx11/fs_ibl.bin -i ../../bgfx/src  --varyingdef ./shader_ibl/varying_ibl.def.sc --platform windows --type fragment -p ps_5_0
+
+.\shaderc.exe -f ./shader_gbuffer/gbuffer/vs_gbuffer.sc -o ../CopyFile/shaders/dx11/vs_gbuffer.bin -i ../../bgfx/src  --varyingdef ./shader_gbuffer/gbuffer/varying_gbuffer.def.sc --platform windows --type vertex -p vs_5_0
+.\shaderc.exe -f ./shader_gbuffer/gbuffer/fs_gbuffer.sc -o ../CopyFile/shaders/dx11/fs_gbuffer.bin -i ../../bgfx/src  --varyingdef ./shader_gbuffer/gbuffer/varying_gbuffer.def.sc --platform windows --type fragment -p ps_5_0
+
+.\shaderc.exe -f ./shader_gbuffer/skybox/vs_skybox.sc -o ../CopyFile/shaders/dx11/vs_skybox.bin -i ../../bgfx/src  --varyingdef ./shader_gbuffer/skybox/varying_skybox.def.sc --platform windows --type vertex -p vs_5_0
+.\shaderc.exe -f ./shader_gbuffer/skybox/fs_skybox.sc -o ../CopyFile/shaders/dx11/fs_skybox.bin -i ../../bgfx/src  --varyingdef ./shader_gbuffer/skybox/varying_skybox.def.sc --platform windows --type fragment -p ps_5_0
+
+.\shaderc.exe -f ./shader_depth/vs_depth.sc -o ../CopyFile/shaders/dx11/vs_depth.bin -i ../../bgfx/src  --varyingdef ./shader_depth/varying_depth.def.sc --platform windows --type vertex -p vs_5_0
+.\shaderc.exe -f ./shader_depth/fs_depth.sc -o ../CopyFile/shaders/dx11/fs_depth.bin -i ../../bgfx/src  --varyingdef ./shader_depth/varying_depth.def.sc --platform windows --type fragment -p ps_5_0
+
+.\shaderc.exe -f ./shader_debug/vs_debug.sc -o ../CopyFile/shaders/dx11/vs_debug.bin -i ../../bgfx/src  --varyingdef ./shader_debug/varying_debug.def.sc --platform windows --type vertex -p vs_5_0
+.\shaderc.exe -f ./shader_debug/fs_debug.sc -o ../CopyFile/shaders/dx11/fs_debug.bin -i ../../bgfx/src  --varyingdef ./shader_debug/varying_debug.def.sc --platform windows --type fragment -p ps_5_0
+
+.\shaderc.exe -f ./shader_debugline/vs_debugline.sc -o ../CopyFile/shaders/dx11/vs_debugline.bin -i ../../bgfx/src  --varyingdef ./shader_debugline/varying_debugline.def.sc --platform windows --type vertex -p vs_5_0
+.\shaderc.exe -f ./shader_debugline/fs_debugline.sc -o ../CopyFile/shaders/dx11/fs_debugline.bin -i ../../bgfx/src  --varyingdef ./shader_debugline/varying_debugline.def.sc --platform windows --type fragment -p ps_5_0
+
+.\shaderc.exe -f ./shader_hiz/vs_hiz.sc -o ../CopyFile/shaders/dx11/vs_hiz.bin -i ../../bgfx/src  --varyingdef ./shader_hiz/varying_hiz.def.sc --platform windows --type vertex -p vs_5_0
+.\shaderc.exe -f ./shader_hiz/fs_hiz.sc -o ../CopyFile/shaders/dx11/fs_hiz.bin -i ../../bgfx/src  --varyingdef ./shader_hiz/varying_hiz.def.sc --platform windows --type fragment -p ps_5_0
+
+.\shaderc.exe -f ./shader_ssr/vs_ssr.sc -o ../CopyFile/shaders/dx11/vs_ssr.bin -i ../../bgfx/src  --varyingdef ./shader_ssr/varying_ssr.def.sc --platform windows --type vertex -p vs_5_0
+.\shaderc.exe -f ./shader_ssr/fs_ssr.sc -o ../CopyFile/shaders/dx11/fs_ssr.bin -i ../../bgfx/src  --varyingdef ./shader_ssr/varying_ssr.def.sc --platform windows --type fragment -p ps_5_0
