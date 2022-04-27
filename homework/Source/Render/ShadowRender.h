@@ -71,7 +71,6 @@ private:
 		Eigen::Matrix4f LightInfo = render_light->GetInformation();
 		Vector3f LightPoint = Vector3f(LightInfo(0, 0), LightInfo(0, 1), LightInfo(0, 2));
 		std::vector<View> ViewsOfPointLight;
-
 		ViewsOfPointLight.push_back(View(LightPoint, 180, 180, 1, 1, 0.1f, render_light->far, 90));
 		ViewsOfPointLight.push_back(View(LightPoint, 0, 180, 1, 1, 0.1f, render_light->far, 90));
 		ViewsOfPointLight.push_back(View(LightPoint, 90, 90, 1, 1, 0.1f, render_light->far, 90));
@@ -79,13 +78,14 @@ private:
 		ViewsOfPointLight.push_back(View(LightPoint, 90, 180, 1, 1, 0.1f, render_light->far, 90));
 		ViewsOfPointLight.push_back(View(LightPoint, -90, 180, 1, 1, 0.1f, render_light->far, 90));
 
-		//遍历六个方向
+		//分配viewid
+		int start_viewid = m_viewid + fbo_num;
+		fbo_num += 6;
+
+		//创建FBO
 		for (int k = 0; k < 6; k++)
 		{
-			//创建FBO
-			int curr_viewid = m_viewid + fbo_num;
-			fbo_num++;
-
+			int curr_viewid = start_viewid + k;
 			bgfx::Attachment gbufferAt[1];
 			gbufferAt[0].init(render_light->shadowmap->m_texh, bgfx::Access::Write, k);
 			FBO[curr_viewid] = bgfx::createFrameBuffer(1, gbufferAt, false);
@@ -99,33 +99,38 @@ private:
 			);
 			bgfx::setViewRect(curr_viewid, 0, 0, uint16_t(render_light->shadowmap->width), uint16_t(render_light->shadowmap->height));
 			bgfx::touch(curr_viewid);
-			//视点变换矩阵
-			float viewmat[16];
-			float projmat[16];
-			GetMat4WithMatrix4f(ViewsOfPointLight[k].GetViewMatrix(), viewmat);
-			GetMat4WithMatrix4f(ViewsOfPointLight[k].GetProjectionMatrix(), projmat);
-			bgfx::setViewTransform(curr_viewid, viewmat, projmat);
+		}
 
-			//遍历object
-			for (int j = 0; j < render_objects.size(); j++)
+		for (int j = 0; j < render_objects.size(); j++)
+		{
+			ObjectRef currobj = render_objects[j];
+			bgfx::setVertexBuffer(0, currobj->staticmeshref->renderdata.m_vbh[0]);
+			bgfx::setIndexBuffer(currobj->staticmeshref->renderdata.m_ibh[1]);
+
+			bgfx::setState(0
+				| BGFX_STATE_WRITE_Z
+				| BGFX_STATE_DEPTH_TEST_LEQUAL
+				| BGFX_STATE_CULL_CCW
+			);
+			float lightinfo[4] = { LightPoint.x,LightPoint.y,LightPoint.z, render_light->far };
+			bgfx::setUniform(pointlightinfo, lightinfo);
+
+			for (int k = 0; k < 6; k++)
 			{
-				float lightinfo[4] = { LightPoint.x,LightPoint.y,LightPoint.z, render_light->far };
-				bgfx::setUniform(pointlightinfo, lightinfo);
+				int curr_viewid = start_viewid + k;
 
-				ObjectRef currobj = render_objects[j];
+				float viewmat[16];
+				float projmat[16];
+				GetMat4WithMatrix4f(ViewsOfPointLight[k].GetViewMatrix(), viewmat);
+				GetMat4WithMatrix4f(ViewsOfPointLight[k].GetProjectionMatrix(), projmat);
+				bgfx::setViewTransform(curr_viewid, viewmat, projmat);
+
 				float mtx[16];
 				GetMat4WithMatrix4f(currobj->Model, mtx);
 				bgfx::setTransform(mtx);
 
-				bgfx::setVertexBuffer(0, currobj->staticmeshref->renderdata.m_vbh[0]);
-				bgfx::setIndexBuffer(currobj->staticmeshref->renderdata.m_ibh[1]);
-
-				bgfx::setState(0
-					| BGFX_STATE_WRITE_Z
-					| BGFX_STATE_DEPTH_TEST_LEQUAL
-					| BGFX_STATE_CULL_CCW
-				);
-				bgfx::submit(curr_viewid, PointShadowShaderref->m_program);
+				if (k == 5)bgfx::submit(curr_viewid, PointShadowShaderref->m_program);
+				else bgfx::submit(curr_viewid, PointShadowShaderref->m_program, 0U, BGFX_DISCARD_TRANSFORM);
 			}
 		}
 	}
