@@ -234,8 +234,18 @@ namespace
 					, uint16_t(my_camera.width)
 					, uint16_t(my_camera.height)
 				);
-
 				showExampleDialog(this);
+				//°´¼ü²Ù×÷°ïÖú
+				ImGui::SetNextWindowPos(
+					ImVec2(0, my_camera.height * 0.5f * (1.0 + scene_ratio))
+					, ImGuiCond_FirstUseEver
+				);
+				ImGui::SetNextWindowSize(
+					ImVec2(my_camera.width * scene_ratio, my_camera.height * 0.5f * (1.0 - scene_ratio))
+					, ImGuiCond_FirstUseEver
+				);
+				ImGui::Begin("Help", NULL, 0);
+				ImGui::Text("1.Keyboard:\tWASD-move_camera\t\tSpace-change_skybox\n2.Mouse:\tLeftMouse-pickup_object\t\tRightMouse-rotate_camera\t\tMiddleMouse-move_camera");
 
 				imguiEndFrame();
 
