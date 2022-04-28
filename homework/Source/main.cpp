@@ -246,6 +246,7 @@ namespace
 				);
 				ImGui::Begin("Help", NULL, 0);
 				ImGui::Text("1.Keyboard:\tWASD-move_camera\t\tSpace-change_skybox\n2.Mouse:\tLeftMouse-pickup_object\t\tRightMouse-rotate_camera\t\tMiddleMouse-move_camera");
+				ImGui::End();
 
 				imguiEndFrame();
 
