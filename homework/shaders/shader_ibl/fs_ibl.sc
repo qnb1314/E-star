@@ -53,7 +53,7 @@ void main()
 	vec3 irradiance = toLinear(textureCube(s_texCubeIrr, normal).xyz);
 	vec3 radiance =  toLinear(textureCubeLod(s_texCube, wi_world, miplevel).xyz);
 
-	vec2 envBRDF = texture2D(s_texbrdfLUT,vec2(min(0.99,max(0.01,wi.z)),roughness)).xy;	
+	vec2 envBRDF = texture2D(s_texbrdfLUT,vec2(min(0.99,max(0.01,wi.z)),1.0 - roughness)).xy;	
 
 	vec3 diffuse = kd * color * irradiance;
 	vec3 specular = radiance * (ks * envBRDF.x + envBRDF.y);
